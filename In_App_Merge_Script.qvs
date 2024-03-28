@@ -1,0 +1,88 @@
+///$tab Main
+SET ThousandSep='.';
+SET DecimalSep=',';
+SET MoneyThousandSep='.';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='#.##0,00 €;-#.##0,00 €';
+SET TimeFormat='h:mm:ss';
+SET DateFormat='YYYY-MM-DD';
+SET TimestampFormat='YYYY-MM-DD h:mm:ss[.fff]';
+SET FirstWeekDay=0;
+SET BrokenWeeks=0;
+SET ReferenceDay=4;
+SET FirstMonthOfYear=1;
+SET CollationLocale='es-ES';
+SET CreateSearchIndexOnReload=1;
+SET MonthNames='ene.;feb.;mar.;abr.;may.;jun.;jul.;ago.;sept.;oct.;nov.;dic.';
+SET LongMonthNames='enero;febrero;marzo;abril;mayo;junio;julio;agosto;septiembre;octubre;noviembre;diciembre';
+SET DayNames='lun.;mar.;mié.;jue.;vie.;sáb.;dom.';
+SET LongDayNames='lunes;martes;miércoles;jueves;viernes;sábado;domingo';
+SET NumericalAbbreviation='3:k;6:M;9:G;12:T;15:P;18:E;21:Z;24:Y;-3:m;-6:μ;-9:n;-12:p;-15:f;-18:a;-21:z;-24:y';
+LET vReloadStart = Timestamp(Now());
+
+///$tab Merge Load
+LIB CONNECT TO 'Merge Demo:Microsoft_SQL_Server_AWS_RDS';
+
+// === Load the entire table. This is executed only at a full load ===
+
+LOAD CustomerID, 
+	CompanyName, 
+	ContactName, 
+	ContactTitle, 
+	Address, 
+	City, 
+	Region, 
+	PostalCode, 
+	Country, 
+	Phone, 
+	Fax, 
+	ModifiedDate,
+    Operation;
+
+[Customers]:
+SELECT CustomerID,
+	CompanyName,
+	ContactName,
+	ContactTitle,
+	Address,
+	City,
+	Region,
+	PostalCode,
+	Country,
+	Phone,
+	Fax,
+	ModifiedDate,
+    Operation
+FROM Northwind.dbo.Customers;
+
+
+If not IsPartialReload() Then
+	LET LastChangeDate = Timestamp(Now());
+    trace === Full Reload: $(LastChangeDate);
+End If;
+
+
+// === Load the changed records only. Executed only at a partial load ===
+
+Merge only (ModifiedDate, LastChangeDate) on CustomerID
+Concatenate (Customers) 
+SELECT Operation, // First field must be Operation e.g. Insert, Update or Delete
+	ModifiedDate, // Second field must be the timestamp field when the record was modified last time
+    CustomerID,
+	CompanyName,
+	ContactName,
+	ContactTitle,
+	Address,
+	City,
+	Region,
+	PostalCode,
+	Country,
+	Phone,
+	Fax	
+FROM Northwind.dbo.Customers
+Where ModifiedDate >= '$(LastChangeDate)';
+
+IF IsPartialReload() Then
+	LET LastChangeDate = Timestamp(LastChangeDate);
+    trace === Partial Reload: $(LastChangeDate);
+End If;
