@@ -2,12 +2,12 @@
 
 ## Content in this repository
 
-1. In-Merge App Demo
+1. In-Merge App Demo:
 - In-app Merge App.qvf: Qlik app containing a load script with the *Merge Only* prefix.
 - In_App_Merge_Automation.json: Qlik automation containing a workflow to insert changes into SQL Server database, trigger a partial reload of 'In-app Merge App.qvf' and notify the admin user by email.
 - In_App_Merge_Script.qvs: Load script exported from app 'In-app Merge App.qvf'
 
-2. QVD Merge Demo
+2. QVD Merge Demo:
 - QVD Merge App.qvf: Qlik app reading from the QVD file created by the script object 'QVD Merge Script.qvf'.
 - QVD Merge Script.qvf: Qlik script object to create a QVD file first and load changes with *Merge* and append to originally created QVD file.
 - QVD Merge Script.qvs: Load script exported from script object 'QVD Merge Script.qvf'
@@ -18,7 +18,7 @@
 ### Data Source
 
 - SQL Server with Northwind sample database
-- Add two new columns to the Customers table: 'ModifiedDate' as a datetime data type and Operation as text.
+- Add two new columns to the Customers table: 'ModifiedDate' as a datetime data type and 'Operation' as text.
 - Create a SQL trigger to store the current timestamp on 'ModifiedDate' column when a record is modified:
 
 `CREATE TRIGGER trg_Customers_UpdateModifiedDate
