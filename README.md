@@ -18,8 +18,8 @@
 ### Data Source
 
 - SQL Server with Northwind sample database
-- Add two new columns to Customers table: ModifiedDate and Operation.
-- Create a SQL trigger to store the current timestamp on ModifiedDate column when a record is modified:
+- Add two new columns to the Customers table: 'ModifiedDate' as a datetime data type and Operation as text.
+- Create a SQL trigger to store the current timestamp on 'ModifiedDate' column when a record is modified:
 
 `CREATE TRIGGER trg_Customers_UpdateModifiedDate
 ON dbo.Customers
